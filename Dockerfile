@@ -1,13 +1,19 @@
+# Use a lightweight Java runtime
 FROM openjdk:21-jdk-slim
 
+# Set working directory
 WORKDIR /app
 
-# Install curl
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# Install curl for downloading the JAR
+RUN apt-get update && apt-get install -y curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Download Suwayomi JAR (specific version)
-RUN curl -L -o app.jar https://github.com/Suwayomi/Suwayomi-Server/releases/tag/v2.1.1867/Suwayomi-Server-v2.1.1867.jar
+# Download the Suwayomi Server JAR (correct release download link)
+RUN curl -L -f -o app.jar \
+    https://github.com/Suwayomi/Suwayomi-Server/releases/download/v2.1.1867/Suwayomi-Server-v2.1.1867.jar
 
+# Expose the Suwayomi default API port
 EXPOSE 4567
 
+# Run the server with memory limits (important for Railway free tier)
 CMD ["java", "-Xmx256m", "-Xms128m", "-jar", "app.jar"]
