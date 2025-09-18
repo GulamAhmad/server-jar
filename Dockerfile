@@ -4,25 +4,17 @@ FROM openjdk:21-jdk-slim
 # Set working directory
 WORKDIR /app
 
-# Install curl for downloading the JAR
+# Install curl to download the JAR
 RUN apt-get update && apt-get install -y curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Download the Suwayomi Server JAR
+# Download Suwayomi Server JAR (specific version v2.1.1867)
 RUN curl -L -f -o app.jar \
     https://github.com/Suwayomi/Suwayomi-Server/releases/download/v2.1.1867/Suwayomi-Server-v2.1.1867.jar
 
-# Create data directory for Suwayomi
-RUN mkdir -p /app/data
-
-# Expose the port
+# Railway assigns a dynamic port via the $PORT environment variable
+# We will tell Suwayomi to listen on it
 EXPOSE 4567
 
-# Set environment variables
-ENV SUWAYOMI_DATA_DIR=/app/data
-
-# Run the server with correct Suwayomi configuration
-CMD sh -c "java -Xmx512m -Xms128m \
-    -Dsuwayomi.tachidesk.config.server.ip=0.0.0.0 \
-    -Dsuwayomi.tachidesk.config.server.port=\${PORT:-4567} \
-    -jar app.jar"
+# Run Suwayomi with Railway's port
+CMD ["sh", "-c", "java -Xmx256m -Xms128m -jar app.jar --server.port=$PORT"]
