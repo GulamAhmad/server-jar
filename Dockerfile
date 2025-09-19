@@ -1,19 +1,25 @@
 # Use a lightweight Java runtime
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 
 # Set working directory
 WORKDIR /app
 
-# Download the latest stable Suwayomi JAR (replace with desired version if needed)
-RUN curl -L -o app.jar https://github.com/Suwayomi/Suwayomi-Server/releases/download/v2.1.2/Suwayomi-Server-v2.1.2.jar
+# Install curl to download the JAR
+RUN apt-get update && apt-get install -y curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Environment variables
+# Download Suwayomi Server JAR (specific version v2.1.1867)
+RUN curl -L -f -o app.jar \
+    https://github.com/Suwayomi/Suwayomi-Server/releases/download/v2.1.1867/Suwayomi-Server-v2.1.1867.jar
+
+
 ENV DISABLE_WEBUI=true
 ENV BIND_ADDRESS=0.0.0.0
 ENV PORT=4567
 
-# Expose the API port
+# Railway assigns a dynamic port via the $PORT environment variable
+# We will tell Suwayomi to listen on it
 EXPOSE 4567
 
-# Run the server
-CMD ["java", "-jar", "app.jar"]
+# Run Suwayomi with Railway's port
+CMD ["sh", "-c", "java -Xmx256m -Xms128m -jar app.jar --server.port=$PORT"]
