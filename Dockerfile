@@ -13,9 +13,12 @@ RUN curl -L -f -o app.jar \
     https://github.com/Suwayomi/Suwayomi-Server/releases/download/v2.1.1867/Suwayomi-Server-v2.1.1867.jar
 
 
-# Railway assigns a dynamic port via the $PORT environment variable
-# We will tell Suwayomi to listen on it
+# Copy your custom config
+RUN mkdir -p /root/.local/share/Tachidesk
+COPY config.properties /root/.local/share/Tachidesk/config.properties
+
+# Expose API port
 EXPOSE 4567
 
-# Run Suwayomi with Railway's port
-CMD ["java", "-DdisableWebUI=true", "-DbindAddress=0.0.0.0", "-jar", "app.jar"]
+# Run the server
+CMD ["java", "-jar", "app.jar"]
